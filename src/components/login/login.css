@@ -1,0 +1,21 @@
+/* Surcharges MUI si nécessaire */
+.gmao-login-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Animation pour le logo */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.MuiBox-root:hover .MuiBox-root {
+  animation: pulse 2s infinite;
+}
