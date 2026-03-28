@@ -1,33 +1,81 @@
-import React, { useState } from 'react';
-import {
-  Container,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Alert,
-  CircularProgress,
-  InputAdornment,
-  IconButton
-} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Container, Paper, TextField, Button, Typography, Box, Alert, CircularProgress, InputAdornment, IconButton } from '@mui/material';
 import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../../redux/slice/userSlice';
+import { useDispatch } from 'react-redux';
+import axios from 'axios';
+import { InternalAxiosRequestConfig } from 'axios';
 
-interface LoginProps {
-  onLogin?: (email: string, password: string) => void;
-}
+const setupAxiosInterceptor = () => {
+  axios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem('token');
+    console.log('Interceptor - token:', token);
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+};
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+setupAxiosInterceptor();
+
+const Login: React.FC = () => {
+  const dispatch = useDispatch();
+  const [usersData, setUsersData] = useState<User[]>([]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const urlGateway = process.env.REACT_APP_URL_GATEWAY_USERS;
+
+  interface User {
+    id: number,
+    userFullname: string,
+    username: string,
+    email: string,
+    password: string,
+    role: 'admin' | 'technicien' | 'user'
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`${urlGateway}`);
+      setUsersData(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+    if (!email || !password) {
+      setError('Veuillez remplir tous les champs');
+      return;
+    }
+    try {
+      const res = await axios.post(`${urlGateway}/login`, {
+        header: { 'Content-Type': 'application/json' },
+        email: email,
+        password: password
+      });
+      console.log('response', res.data);
+      if (res.data.success) {
+        localStorage.setItem('token', res.data.accessToken);
+        dispatch(login({
+          user: res.data.user,
+          token: res.data.accessToken
+        }));
+        navigate('/Home');
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -95,7 +143,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
               variant="outlined"
             />
 
@@ -110,7 +157,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -130,19 +176,18 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               fullWidth
               variant="contained"
               size="large"
-              disabled={loading}
               sx={{ mt: 3, mb: 2, py: 1.5 }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Se connecter'}
+              Se connecter
             </Button>
 
             {/* Liens supplémentaires */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="primary" sx={{ cursor: 'pointer' }}>
-                Mot de passe oublié ?
+              <Typography onClick={()=>navigate('/Inscritption')} variant="body2" color="primary" sx={{ cursor: 'pointer' }}>
+                S'inscrire
               </Typography>
               <Typography variant="body2" color="primary" sx={{ cursor: 'pointer' }}>
-                Contacter le support
+                Mot de passe oublié ?
               </Typography>
             </Box>
           </Box>

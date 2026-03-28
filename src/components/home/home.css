@@ -1,0 +1,150 @@
+/* pages/Home.css */
+.home-container {
+  padding: 24px;
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 64px);
+  margin-top: 64px;
+}
+
+.welcome-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.welcome-avatar {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.welcome-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.welcome-subtitle {
+  color: #6c757d;
+}
+
+.stats-grid {
+  margin-bottom: 32px;
+}
+
+.stats-card {
+  padding: 16px;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card.alert {
+  background: #ffebee;
+}
+
+.stats-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.stats-icon.primary { color: #1976d2; }
+.stats-icon.warning { color: #ed6c02; }
+.stats-icon.info { color: #0288d1; }
+.stats-icon.error { color: #d32f2f; }
+
+.stats-value {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 8px 0;
+  color: #333;
+}
+
+.stats-value.error-text {
+  color: #d32f2f;
+}
+
+.stats-label {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.divider {
+  margin: 24px 0;
+  border-color: #e0e0e0;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.menu-grid {
+  margin-bottom: 32px;
+}
+
+.menu-card {
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  border-radius: 12px;
+}
+
+.menu-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  background: #f8f9ff;
+}
+
+.menu-icon {
+  color: #1976d2;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.menu-icon svg {
+  font-size: 48px;
+}
+
+.menu-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: #999;
+  border-radius: 12px;
+}
+
+@media (max-width: 600px) {
+  .home-container {
+    padding: 16px;
+    margin-top: 56px;
+    min-height: calc(100vh - 56px);
+  }
+  
+  .welcome-section {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .stats-value {
+    font-size: 24px;
+  }
+  
+  .menu-title {
+    font-size: 16px;
+  }
+}
