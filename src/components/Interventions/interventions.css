@@ -1,0 +1,71 @@
+/* pages/Interventions.css */
+.interventions-container {
+  padding: 24px;
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 64px);
+  margin-top: 64px;
+}
+
+.interventions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+.tabs-container {
+  border-radius: 12px;
+  margin-bottom: 24px;
+  background: white;
+}
+
+.search-input {
+  margin-bottom: 24px;
+  background: white;
+  border-radius: 8px;
+}
+
+.search-input .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
+
+.table-container {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-container .MuiTableHead-root .MuiTableCell-root {
+  background-color: #fafafa;
+  font-weight: 600;
+  color: #333;
+}
+
+@media (max-width: 600px) {
+  .interventions-container {
+    padding: 16px;
+    margin-top: 56px;
+  }
+  
+  .interventions-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .interventions-header button {
+    width: 100%;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+}

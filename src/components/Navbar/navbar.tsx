@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
   return (
     <AppBar position="fixed" sx={{ zIndex: 1201 }}>
       <Toolbar>
-        <Typography onClick={()=>{navigate('/Home')}} variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography onClick={()=>{navigate('/Home')}} variant="h6" sx={{ flexGrow: 1 , cursor : 'pointer' }}>
           GMAO Pro
         </Typography>
 

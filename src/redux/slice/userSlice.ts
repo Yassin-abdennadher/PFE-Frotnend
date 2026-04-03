@@ -26,11 +26,12 @@ const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        login: (state, action: PayloadAction<{ user: User; token: string }>) => {
+        login: (state, action: PayloadAction<{ user: User; token: string; refreshToken: string }>) => {
             state.isLogged = true;
             state.currentUser = action.payload.user;
             localStorage.setItem('user', JSON.stringify(action.payload.user));
             localStorage.setItem('token', action.payload.token);
+            localStorage.setItem('refreshToken', action.payload.refreshToken);
         },
         logout: (state) => {
             state.isLogged = false;
@@ -38,6 +39,7 @@ const userSlice = createSlice({
 
             localStorage.removeItem('user');
             localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken')
         },
         updateProfile: (state, action: PayloadAction<User>) => {
             state.currentUser = action.payload;

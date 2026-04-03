@@ -1,4 +1,3 @@
-// pages/Equipements.tsx
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +29,7 @@ import {
     Inventory as InventoryIcon,
     Build as BuildIcon
 } from '@mui/icons-material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { RootState } from '../../redux/store';
 import './equipements.css';
 import axios from 'axios'
@@ -41,7 +41,7 @@ interface TabPanelProps {
 }
 
 interface Machines {
-    id: string
+    _id: string
     nom: string;
     type: string;
     marque: string;
@@ -55,7 +55,7 @@ interface Machines {
 }
 
 interface Pieces {
-    id: string
+    _id: string
     reference: string;
     nom: string;
     description?: string;
@@ -103,14 +103,17 @@ const Equipements: React.FC = () => {
 
     const fetchMachines = async () => {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${urlMainService}/machine`, {
+        const res = await axios.get(`${urlMainService}/machines`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         setMachines(res.data);
     }
 
     const fetchPieces = async () => {
-        const res = await axios.get(`${urlMainService}/piece`);
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${urlMainService}/pieces`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         setPieces(res.data);
     }
 
@@ -146,11 +149,36 @@ const Equipements: React.FC = () => {
         return <Chip label="Disponible" color="success" size="small" />;
     };
 
+    const handleEdit = (id: string) => {
+        navigate(tabValue === 0 ? `/Machine/${id}` : `/Piece/${id}`);
+    }
+
+    const handleDelete = async (id: string) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`${urlMainService}/${tabValue === 0 ? 'machines' : 'pieces'}/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            fetchMachines();
+            fetchPieces();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     const canEdit = role === 'admin';
 
     return (
         <Box className="equipements-container">
             <Container maxWidth="lg">
+                <Button
+                    variant='contained'
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => { navigate('/Home') }}
+                >
+                    retour
+                </Button>
                 <Box className="equipements-header">
                     <Box>
                         <Typography variant="h4" className="page-title">
@@ -202,12 +230,14 @@ const Equipements: React.FC = () => {
                                     <TableCell>Type</TableCell>
                                     <TableCell>Statut</TableCell>
                                     <TableCell>Localisation</TableCell>
+                                    <TableCell>Fournisseur</TableCell>
+                                    <TableCell>Contact Fournisseur</TableCell>
                                     {canEdit && <TableCell align="right">Actions</TableCell>}
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {filteredMachines.map((machine) => (
-                                    <TableRow key={machine.id} hover>
+                                    <TableRow key={machine._id} hover>
                                         <TableCell>
                                             <Typography variant="body2" fontWeight={500}>
                                                 {machine.nom}
@@ -216,12 +246,14 @@ const Equipements: React.FC = () => {
                                         <TableCell>{machine.type}</TableCell>
                                         <TableCell>{getStatutChip(machine.statut)}</TableCell>
                                         <TableCell>{machine.localisation}</TableCell>
+                                        <TableCell>{machine.fournisseur}</TableCell>
+                                        <TableCell>{machine.contactFournisseur}</TableCell>
                                         {canEdit && (
                                             <TableCell align="right">
-                                                <IconButton size="small" onClick={() => navigate(`/machines/${machine.id}`)}>
+                                                <IconButton size="small" onClick={() => handleEdit(machine._id)}>
                                                     <EditIcon fontSize="small" />
                                                 </IconButton>
-                                                <IconButton size="small" color="error">
+                                                <IconButton size="small" color="error" onClick={() => handleDelete(machine._id)}>
                                                     <DeleteIcon fontSize="small" />
                                                 </IconButton>
                                             </TableCell>
@@ -255,7 +287,7 @@ const Equipements: React.FC = () => {
                             </TableHead>
                             <TableBody>
                                 {filteredPieces.map((piece) => (
-                                    <TableRow key={piece.id} hover>
+                                    <TableRow key={piece._id} hover>
                                         <TableCell>
                                             <Typography variant="body2" fontFamily="monospace">
                                                 {piece.reference}
@@ -267,10 +299,10 @@ const Equipements: React.FC = () => {
                                         <TableCell>{piece.fournisseur}</TableCell>
                                         {canEdit && (
                                             <TableCell align="right">
-                                                <IconButton size="small" onClick={() => navigate(`/pieces/${piece.id}`)}>
+                                                <IconButton size="small" onClick={() => handleEdit(piece._id)}>
                                                     <EditIcon fontSize="small" />
                                                 </IconButton>
-                                                <IconButton size="small" color="error">
+                                                <IconButton size="small" color="error" onClick={()=>handleDelete(piece._id)}>
                                                     <DeleteIcon fontSize="small" />
                                                 </IconButton>
                                             </TableCell>

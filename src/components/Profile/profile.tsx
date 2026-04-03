@@ -30,6 +30,7 @@ import {
   Edit as EditIcon,
   VpnKey as VpnKeyIcon
 } from '@mui/icons-material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { RootState } from '../../redux/store';
 import { updateProfile } from '../../redux/slice/userSlice';
 import axios from 'axios';
@@ -84,6 +85,8 @@ const Profile: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
+      console.log('token from profile : ',token);
+      
       const response = await axios.put(
         `${process.env.REACT_APP_URL_GATEWAY_USERS}/${currentUser?.id}`,
         {
@@ -95,9 +98,11 @@ const Profile: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
+      console.log('response profile : ',response);
+      
 
       if (response.data.success) {
-        dispatch(updateProfile(response.data.user));
+        dispatch(updateProfile(response.data.data));
         setSuccess('Profil mis à jour avec succès');
         setEditingProfile(false);
       }
@@ -163,6 +168,12 @@ const Profile: React.FC = () => {
     <Box className="profile-container">
       <Container maxWidth="md">
         <Paper className="profile-paper">
+          <Button
+            variant='contained'
+            startIcon={<ArrowBackIcon />}
+            onClick={() => { navigate('/Home') }}
+          >
+          </Button>
           {/* En-tête */}
           <Box className="profile-header">
             <Avatar className="profile-avatar">
@@ -422,7 +433,7 @@ const Profile: React.FC = () => {
 
               {!editingPassword && (
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  • • • • • • • • • • • • • • • • 
+                  • • • • • • • • • • • • • • • •
                 </Typography>
               )}
             </CardContent>

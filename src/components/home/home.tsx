@@ -1,5 +1,4 @@
-// pages/Home.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -24,24 +23,59 @@ import {
 } from '@mui/icons-material';
 import { RootState } from '../../redux/store';
 import './home.css';
+import axios from 'axios';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state: RootState) => state.user);
   const role = currentUser?.role || 'user';
+  const urlMain = process.env.REACT_APP_URL_GATEWAY_MAIN;
+  const [machines, setMachines] = useState(0);
+  const [interventions, setInterventions] = useState(0);
+  const [interEnCours, setInterEnCours] = useState(0);
+
+  const fetchStats = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const resMachines = await axios.get(`${urlMain}/machines`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const resPieces = await axios.get(`${urlMain}/machines`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setMachines(resMachines.data.length + resPieces.data.length);
+      const resPrev = await axios.get(`${urlMain}/taches/preventive`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const resCur = await axios.get(`${urlMain}/taches/curative`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const somme = resCur.data.data.length + resPrev.data.data.length
+      setInterventions(somme);
+      const resEnCours = resCur.data.data.filter((tachCur: any) => tachCur.statut === 'en_cours').length + resPrev.data.data.filter((tachPrev: any) => tachPrev.statut === 'en_cours').length;
+      setInterEnCours(resEnCours);
+    } catch (err) {
+      console.error('Error : ', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats()
+  }, []);
 
   const stats = {
-    machines: 24,
-    interventions: 8,
-    enCours: 3,
+    machines: machines,
+    interventions: interventions,
+    enCours: interEnCours,
     alertes: 2
   };
 
   const menuItems = [
     { title: 'Tableau de bord', icon: <DashboardIcon />, path: '/dashboard', roles: ['admin', 'user', 'technicien'] },
     { title: 'Équipements', icon: <InventoryIcon />, path: '/Equipements', roles: ['admin', 'user', 'technicien'] },
-    { title: 'Interventions', icon: <AssignmentIcon />, path: '/taches', roles: ['admin', 'technicien'] },
-    { title: 'Maintenance', icon: <BuildIcon />, path: '/maintenance', roles: ['admin','technicien', 'user'] },
+    { title: 'Interventions', icon: <AssignmentIcon />, path: '/Interventions', roles: ['admin', 'technicien'] },
+    { title: 'Maintenance', icon: <BuildIcon />, path: '/maintenance', roles: ['admin', 'technicien', 'user'] },
     { title: 'Techniciens', icon: <PeopleIcon />, path: '/techniciens', roles: ['admin', 'user'] }
   ];
 

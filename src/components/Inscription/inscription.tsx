@@ -28,6 +28,7 @@ import {
   Badge,
   Business
 } from '@mui/icons-material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import './inscription.css';
 
@@ -348,6 +349,12 @@ const Inscription: React.FC = () => {
     <Container component="main" maxWidth="sm">
       <Box className="inscription-container">
         <Paper className="inscription-paper">
+          <Button
+                    variant='contained'
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => { navigate('/') }}
+                >
+                </Button>
           {/* Logo */}
           <Box className="logo-container">
             <Box className="logo-box">
@@ -419,7 +426,7 @@ const Inscription: React.FC = () => {
                 variant="body2"
                 color="primary"
                 sx={{ cursor: 'pointer' }}
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/')}
               >
                 Se connecter
               </Typography>
