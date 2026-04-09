@@ -40,7 +40,7 @@ const Home: React.FC = () => {
       const resMachines = await axios.get(`${urlMain}/machines`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const resPieces = await axios.get(`${urlMain}/machines`, {
+      const resPieces = await axios.get(`${urlMain}/pieces`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -61,7 +61,7 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchStats()
+    fetchStats();
   }, []);
 
   const stats = {

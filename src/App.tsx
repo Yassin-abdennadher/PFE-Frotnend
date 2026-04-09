@@ -13,6 +13,7 @@ import MachineForm from './components/Equipements/machineFormEdit';
 import PieceForm from './components/Equipements/pieceFormEdit';
 import TachePreventiveForm from './components/Interventions/tachePreventiveForm';
 import TacheCurativeForm from './components/Interventions/tacheCurativeForm';
+import Techniciens from './components/Techniciens/techniciens';
 
 
 function AppContent() {
@@ -27,7 +28,7 @@ function AppContent() {
         <Route path='/' element={<Login />} />
         <Route path='/Login' element={<Login />} />
         <Route path='/Home' element={<Home />} />
-        <Route path='/Inscritption' element={<Inscription />} />
+        <Route path='/Inscription' element={<Inscription />} />
         <Route path='/Profile' element={<Profile />} />
         <Route path='/Equipements' element={<Equipements />} />
         <Route path="/machines/ajouter" element={<MachineForm />} />
@@ -39,6 +40,7 @@ function AppContent() {
         <Route path='/taches/curative/ajouter' element = {<TacheCurativeForm/>}/>
         <Route path='/taches/curative/:id' element = {<TacheCurativeForm/>}/>
         <Route path='/Interventions' element={<Interventions />} />
+        <Route path='/Techniciens' element={<Techniciens />} />
       </Routes>
     </BrowserRouter>
   );

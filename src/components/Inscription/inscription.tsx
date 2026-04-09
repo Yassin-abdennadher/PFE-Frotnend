@@ -354,6 +354,7 @@ const Inscription: React.FC = () => {
                     startIcon={<ArrowBackIcon />}
                     onClick={() => { navigate('/') }}
                 >
+                  retour
                 </Button>
           {/* Logo */}
           <Box className="logo-container">

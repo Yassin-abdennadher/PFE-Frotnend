@@ -63,7 +63,6 @@ const TabPanel = (props: TabPanelProps) => {
   );
 };
 
-// Types
 interface Machine {
   _id: string;
   nom: string;
@@ -214,7 +213,8 @@ const Interventions: React.FC = () => {
     c.panne.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const canEdit = role === 'admin' || role === 'technicien';
+  const canEdit = role === 'admin';
+  const isTechnicien = role === 'technicien';
 
   const handleDelete = async (id: string, type: 'preventive' | 'curative') => {
     if (!window.confirm('Supprimer cette intervention ?')) return;
@@ -236,6 +236,33 @@ const Interventions: React.FC = () => {
       }
     } catch (error) {
       console.error('Erreur suppression:', error);
+    }
+  };
+
+  const handleStatusChange = async (id: string, newStatus: string, type: 'preventive' | 'curative') => {
+    try {
+      const token = localStorage.getItem('token');
+      const endpoint = type === 'preventive' 
+        ? `${urlMain}/taches/preventive/${id}`
+        : `${urlMain}/taches/curative/${id}`;
+      
+      await axios.put(endpoint, { statut: newStatus }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (type === 'preventive') {
+        const res = await axios.get(`${urlMain}/taches/preventive`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setPreventives(res.data.data);
+      } else {
+        const res = await axios.get(`${urlMain}/taches/curative`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setCuratives(res.data.data);
+      }
+    } catch (error) {
+      console.error('Erreur mise à jour statut:', error);
     }
   };
 
@@ -337,7 +364,7 @@ const Interventions: React.FC = () => {
                     <TableCell>{new Date(tache.dateProchaine).toLocaleDateString()}</TableCell>
                     <TableCell>{getStatutChip(tache.statut)}</TableCell>
                     <TableCell align="right" onClick={(e) => e.stopPropagation()}>
-                      {/* {isTechnicien && tache.statut === 'planifiee' && (
+                      {isTechnicien && tache.statut === 'planifiee' && (
                         <IconButton size="small" onClick={() => handleStatusChange(tache._id, 'en_cours', 'preventive')}>
                           <PlayArrowIcon fontSize="small" />
                         </IconButton>
@@ -346,7 +373,7 @@ const Interventions: React.FC = () => {
                         <IconButton size="small" onClick={() => handleStatusChange(tache._id, 'terminee', 'preventive')}>
                           <DoneIcon fontSize="small" color="success" />
                         </IconButton>
-                      )} */}
+                      )}
                       {canEdit && (
                         <>
                           <IconButton size="small" onClick={() => navigate(`/taches/preventive/${tache._id}`)}>
@@ -401,7 +428,7 @@ const Interventions: React.FC = () => {
                     <TableCell>{tache.tempsPasse} min</TableCell>
                     <TableCell>{getStatutChip(tache.statut)}</TableCell>
                     <TableCell align="right" onClick={(e) => e.stopPropagation()}>
-                      {/* {isTechnicien && tache.statut === 'ouverte' && (
+                      {isTechnicien && tache.statut === 'ouverte' && (
                         <IconButton size="small" onClick={() => handleStatusChange(tache._id, 'en_cours', 'curative')}>
                           <PlayArrowIcon fontSize="small" />
                         </IconButton>
@@ -410,7 +437,7 @@ const Interventions: React.FC = () => {
                         <IconButton size="small" onClick={() => handleStatusChange(tache._id, 'terminee', 'curative')}>
                           <DoneIcon fontSize="small" color="success" />
                         </IconButton>
-                      )} */}
+                      )}
                       {canEdit && (
                         <>
                           <IconButton size="small" onClick={() => navigate(`/taches/curative/${tache._id}`)}>
