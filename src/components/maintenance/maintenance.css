@@ -1,0 +1,187 @@
+/* pages/maintenance.css */
+.maintenance-container {
+  padding: 24px;
+  background-color: transparent;
+  min-height: calc(100vh - 64px);
+  margin-top: 64px;
+}
+
+.maintenance-paper {
+  padding: 32px;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.maintenance-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header-icon {
+  font-size: 48px;
+  color: #1976d2;
+  margin-bottom: 16px;
+}
+
+.page-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  color: #6c757d;
+}
+
+.stepper {
+  margin-bottom: 32px;
+}
+
+.step-content {
+  margin: 32px 0;
+  min-height: 300px;
+}
+
+.machine-info {
+  margin-top: 16px;
+  background-color: #f8f9fa;
+  border-left: 3px solid #1976d2;
+}
+
+.confirmation-card {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.success-paper {
+  padding: 48px;
+  text-align: center;
+  border-radius: 24px;
+}
+
+.success-icon {
+  font-size: 64px;
+  color: #4caf50;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .maintenance-container {
+    padding: 16px;
+    margin-top: 56px;
+  }
+  
+  .maintenance-paper {
+    padding: 20px;
+  }
+  
+  .button-container {
+    flex-direction: column-reverse;
+  }
+  
+  .button-container button {
+    width: 100%;
+  }
+}/* pages/maintenance.css */
+.maintenance-container {
+  padding: 24px;
+  background-color: transparent;
+  min-height: calc(100vh - 64px);
+  margin-top: 64px;
+}
+
+.maintenance-paper {
+  padding: 32px;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.maintenance-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header-icon {
+  font-size: 48px;
+  color: #1976d2;
+  margin-bottom: 16px;
+}
+
+.page-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  color: #6c757d;
+}
+
+.stepper {
+  margin-bottom: 32px;
+}
+
+.step-content {
+  margin: 32px 0;
+  min-height: 300px;
+}
+
+.machine-info {
+  margin-top: 16px;
+  background-color: #f8f9fa;
+  border-left: 3px solid #1976d2;
+}
+
+.confirmation-card {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.success-paper {
+  padding: 48px;
+  text-align: center;
+  border-radius: 24px;
+}
+
+.success-icon {
+  font-size: 64px;
+  color: #4caf50;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .maintenance-container {
+    padding: 16px;
+    margin-top: 56px;
+  }
+  
+  .maintenance-paper {
+    padding: 20px;
+  }
+  
+  .button-container {
+    flex-direction: column-reverse;
+  }
+  
+  .button-container button {
+    width: 100%;
+  }
+}

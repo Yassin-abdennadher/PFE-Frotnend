@@ -293,10 +293,10 @@ const Interventions: React.FC = () => {
                 >
                   retour
                 </Button>
-            <Typography variant="h4" className="page-title">
+            <Typography variant="h4" className="page-title" color="text.primary">
               Interventions
             </Typography>
-            <Typography variant="body2" className="page-subtitle">
+            <Typography variant="body2" className="page-subtitle" color="text.secondary">
               Gérez les maintenances préventives et curatives
             </Typography>
           </Box>

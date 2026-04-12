@@ -173,6 +173,7 @@ const Profile: React.FC = () => {
             startIcon={<ArrowBackIcon />}
             onClick={() => { navigate('/Home') }}
           >
+            retour
           </Button>
           {/* En-tête */}
           <Box className="profile-header">

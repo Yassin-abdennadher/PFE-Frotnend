@@ -181,10 +181,10 @@ const Equipements: React.FC = () => {
                 </Button>
                 <Box className="equipements-header">
                     <Box>
-                        <Typography variant="h4" className="page-title">
+                        <Typography variant="h4" className="page-title" color="text.primary">
                             Gestion des équipements
                         </Typography>
-                        <Typography variant="body2" className="page-subtitle">
+                        <Typography variant="body2" className="page-subtitle" color="text.secondary">
                             Gérez vos machines et vos pièces détachées
                         </Typography>
                     </Box>

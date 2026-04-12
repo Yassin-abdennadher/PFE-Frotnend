@@ -1,31 +1,32 @@
 /* pages/Techniciens.css */
 .techniciens-container {
     padding: 24px;
-    background-color: #f5f5f5;
     min-height: calc(100vh - 64px);
     margin-top: 64px;
+    color: inherit;
 }
 
 .techniciens-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    color : inherit;
     margin-bottom: 24px;
 }
 
 .page-title {
     font-weight: 600;
-    color: #333;
+    color: inherit;
 }
 
 .page-subtitle {
-    color: #6c757d;
+    color: inherit;
     margin-top: 4px;
 }
 
 .search-input {
     margin-bottom: 24px;
-    background: white;
+    background: inherit;
     border-radius: 8px;
 }
 
@@ -39,9 +40,9 @@
 }
 
 .table-container .MuiTableHead-root .MuiTableCell-root {
-    background-color: #fafafa;
+    background-color: inherit;
     font-weight: 600;
-    color: #333;
+    color: inherit;
 }
 
 .alert-message {

@@ -1,7 +1,6 @@
 /* pages/Home.css */
 .home-container {
   padding: 24px;
-  background-color: #f5f5f5;
   min-height: calc(100vh - 64px);
   margin-top: 64px;
 }
@@ -21,11 +20,11 @@
 
 .welcome-title {
   font-weight: 600;
-  color: #333;
+  color: inherit;
 }
 
 .welcome-subtitle {
-  color: #6c757d;
+  color: inherit;
 }
 
 .stats-grid {
@@ -46,7 +45,8 @@
 }
 
 .stats-card.alert {
-  background: #ffebee;
+  background: #ffb6c1;
+  color : #333 ;
 }
 
 .stats-icon {
@@ -63,7 +63,7 @@
   font-size: 28px;
   font-weight: bold;
   margin: 8px 0;
-  color: #333;
+  color: inherit;
 }
 
 .stats-value.error-text {
@@ -71,7 +71,7 @@
 }
 
 .stats-label {
-  color: #6c757d;
+  color: inherit;
   font-size: 14px;
 }
 
@@ -84,7 +84,6 @@
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #333;
 }
 
 .menu-grid {
@@ -101,7 +100,7 @@
 .menu-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  background: #f8f9ff;
+  background: inherit;
 }
 
 .menu-icon {
@@ -118,13 +117,13 @@
 .menu-title {
   font-size: 18px;
   font-weight: 500;
-  color: #333;
+  color: inherit;
 }
 
 .empty-state {
   text-align: center;
   padding: 48px;
-  color: #999;
+  color: inherit;
   border-radius: 12px;
 }
 

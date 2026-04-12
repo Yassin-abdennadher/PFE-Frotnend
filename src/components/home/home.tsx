@@ -72,10 +72,10 @@ const Home: React.FC = () => {
   };
 
   const menuItems = [
-    { title: 'Tableau de bord', icon: <DashboardIcon />, path: '/dashboard', roles: ['admin', 'user', 'technicien'] },
+    { title: 'Tableau de bord', icon: <DashboardIcon />, path: '/dashboard', roles: ['admin', 'technicien'] },
     { title: 'Équipements', icon: <InventoryIcon />, path: '/Equipements', roles: ['admin', 'user', 'technicien'] },
     { title: 'Interventions', icon: <AssignmentIcon />, path: '/Interventions', roles: ['admin', 'technicien'] },
-    { title: 'Maintenance', icon: <BuildIcon />, path: '/maintenance', roles: ['admin', 'technicien', 'user'] },
+    { title: 'Maintenance', icon: <BuildIcon />, path: '/maintenance', roles: ['technicien', 'user'] },
     { title: 'Techniciens', icon: <PeopleIcon />, path: '/techniciens', roles: ['admin', 'user'] }
   ];
 
@@ -90,10 +90,10 @@ const Home: React.FC = () => {
             {currentUser?.userFullname?.charAt(0).toUpperCase()}
           </Avatar>
           <Box>
-            <Typography variant="h4" className="welcome-title">
+            <Typography variant="h4" className="welcome-title" color="text.primary">
               Bienvenue, {currentUser?.userFullname} !
             </Typography>
-            <Typography variant="body1" className="welcome-subtitle">
+            <Typography variant="body1" className="welcome-subtitle" color="text.secondary">
               {role === 'admin' && 'Gestionnaire principal'}
               {role === 'user' && 'utilisateur'}
               {role === 'technicien' && 'Technicien de maintenance'}
@@ -138,7 +138,7 @@ const Home: React.FC = () => {
         <Divider className="divider" />
 
         {/* Menu rapide */}
-        <Typography className="section-title">Accès rapide</Typography>
+        <Typography className="section-title" color="text.primary">Accès rapide</Typography>
         <Grid container spacing={2} className="menu-grid">
           {visibleMenu.map((item) => (
             <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item.title}>
@@ -153,7 +153,7 @@ const Home: React.FC = () => {
         </Grid>
 
         {/* Dernières interventions */}
-        <Typography className="section-title">Dernières interventions</Typography>
+        <Typography className="section-title" color="text.primary">Dernières interventions</Typography>
         <Paper className="empty-state">
           <Typography variant="body2">Aucune intervention en cours</Typography>
         </Paper>

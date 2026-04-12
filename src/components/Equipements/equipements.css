@@ -1,7 +1,6 @@
 /* pages/Equipements.css */
 .equipements-container {
   padding: 24px;
-  background-color: #f5f5f5;
   min-height: calc(100vh - 64px);
   margin-top: 64px;
 }
@@ -15,23 +14,23 @@
 
 .page-title {
   font-weight: 600;
-  color: #333;
+  color: inherit;
 }
 
 .page-subtitle {
-  color: #6c757d;
+  color: inherit;
   margin-top: 4px;
 }
 
 .tabs-container {
   border-radius: 12px;
   margin-bottom: 24px;
-  background: white;
+  background: inherit;
 }
 
 .search-input {
   margin-bottom: 24px;
-  background: white;
+  background: inherit;
   border-radius: 8px;
 }
 
@@ -45,9 +44,9 @@
 }
 
 .table-container .MuiTableHead-root .MuiTableCell-root {
-  background-color: #fafafa;
+  background-color: inherit;
   font-weight: 600;
-  color: #333;
+  color: inherit;
 }
 
 @media (max-width: 600px) {

@@ -39,6 +39,7 @@ import {
     Cancel as CancelIcon
 } from '@mui/icons-material';
 import { RootState } from '../../redux/store';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import './techniciens.css';
 
@@ -136,7 +137,7 @@ const Techniciens: React.FC = () => {
 
         try {
             const token = localStorage.getItem('token');
-            
+
             if (editingTechnicien) {
                 // Modification
                 const updateData: any = {
@@ -147,7 +148,7 @@ const Techniciens: React.FC = () => {
                 if (formData.password) {
                     updateData.password = formData.password;
                 }
-                
+
                 await axios.put(`${urlAuth}/${editingTechnicien.id}`, updateData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
@@ -165,12 +166,12 @@ const Techniciens: React.FC = () => {
                 });
                 setSuccess('Technicien ajouté avec succès');
             }
-            
+
             setTimeout(() => {
                 fetchTechniciens();
                 handleCloseDialog();
             }, 1500);
-            
+
         } catch (err: any) {
             setError(err.response?.data?.message || 'Erreur lors de l\'opération');
         } finally {
@@ -180,7 +181,7 @@ const Techniciens: React.FC = () => {
 
     const handleDelete = async (id: string) => {
         if (!window.confirm('Supprimer ce technicien ?')) return;
-        
+
         try {
             const token = localStorage.getItem('token');
             await axios.delete(`${urlAuth}/${id}`, {
@@ -204,12 +205,19 @@ const Techniciens: React.FC = () => {
     return (
         <Box className="techniciens-container">
             <Container maxWidth="lg">
+                <Button
+                    variant='contained'
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => { navigate('/Home') }}
+                >
+                    retour
+                </Button>
                 <Box className="techniciens-header">
                     <Box>
-                        <Typography variant="h4" className="page-title">
+                        <Typography variant="h4" className="page-title" color="text.primary">
                             Gestion des techniciens
                         </Typography>
-                        <Typography variant="body2" className="page-subtitle">
+                        <Typography variant="body2" className="page-subtitle" color="text.secondary">
                             {isAdmin ? 'Ajoutez, modifiez ou supprimez les techniciens' : 'Consultez la liste de nos techniciens'}
                         </Typography>
                     </Box>

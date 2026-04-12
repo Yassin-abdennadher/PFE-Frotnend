@@ -25,7 +25,7 @@ axios.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         const response = await axios.post('http://localhost:8000/api/auth/refresh', {
-          refreshToken : refreshToken
+          refreshToken: refreshToken
         });
 
         const { accessToken } = response.data;
@@ -50,9 +50,9 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
