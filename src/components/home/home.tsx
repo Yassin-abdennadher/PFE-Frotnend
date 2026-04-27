@@ -10,7 +10,8 @@ import {
   Typography,
   Avatar,
   Paper,
-  Divider
+  Divider,
+  Chip
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -30,9 +31,11 @@ const Home: React.FC = () => {
   const { currentUser } = useSelector((state: RootState) => state.user);
   const role = currentUser?.role || 'user';
   const urlMain = process.env.REACT_APP_URL_GATEWAY_MAIN;
-  const [machines, setMachines] = useState(0);
-  const [interventions, setInterventions] = useState(0);
+  const [equipements, setEquipements] = useState(0);
+  const [interventionsNbr, setInterventionsNbr] = useState(0);
+  const [interventions, setInterventions] = useState<any[]>([]);
   const [interEnCours, setInterEnCours] = useState(0);
+  const [alertes , setAlertes]=useState<number>(0);
 
   const fetchStats = async () => {
     try {
@@ -43,8 +46,8 @@ const Home: React.FC = () => {
       const resPieces = await axios.get(`${urlMain}/pieces`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      setMachines(resMachines.data.length + resPieces.data.length);
+      setAlertes(resPieces.data.filter((piece : any)=>piece.quantiteStock < piece.seuilAlerte).length);
+      setEquipements(resMachines.data.length + resPieces.data.length);
       const resPrev = await axios.get(`${urlMain}/taches/preventive`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -52,7 +55,8 @@ const Home: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const somme = resCur.data.data.length + resPrev.data.data.length
-      setInterventions(somme);
+      setInterventionsNbr(somme);
+      setInterventions([...resPrev.data.data, ...resCur.data.data]);
       const resEnCours = resCur.data.data.filter((tachCur: any) => tachCur.statut === 'en_cours').length + resPrev.data.data.filter((tachPrev: any) => tachPrev.statut === 'en_cours').length;
       setInterEnCours(resEnCours);
     } catch (err) {
@@ -65,10 +69,10 @@ const Home: React.FC = () => {
   }, []);
 
   const stats = {
-    machines: machines,
-    interventions: interventions,
+    machines: equipements,
+    interventions: interventionsNbr,
     enCours: interEnCours,
-    alertes: 2
+    alertes: alertes
   };
 
   const menuItems = [
@@ -155,7 +159,49 @@ const Home: React.FC = () => {
         {/* Dernières interventions */}
         <Typography className="section-title" color="text.primary">Dernières interventions</Typography>
         <Paper className="empty-state">
-          <Typography variant="body2">Aucune intervention en cours</Typography>
+          {interventionsNbr === 0 ? (
+            <Typography variant="body2">Aucune intervention</Typography>
+          ) : (
+            <Box>
+              {
+                (role === 'technicien'
+                  ? interventions?.filter((i: any) => i.technicienId === currentUser?.id?.toString()).sort((a, b) =>
+                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                  ).slice(0, 5)
+                  : interventions?.sort((a, b) =>
+                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                  ).slice(0, 10)
+                ).map((intervention: any) => (
+                  <Box
+                    key={intervention._id}
+                    sx={{
+                      p: 2,
+                      borderBottom: '1px solid #eee',
+                      cursor: 'pointer',
+                      '&:hover': { bgcolor: 'action.hover' }
+                    }}
+                    onClick={() => navigate(`/taches/${intervention.type === 'preventive' ? 'preventive' : 'curative'}/${intervention._id}`)}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body1" fontWeight={500}>
+                        {intervention.titre}
+                      </Typography>
+                      <Chip
+                        label={intervention.statut}
+                        size="small"
+                        color={
+                          intervention.statut === 'terminee' ? 'success' :
+                            intervention.statut === 'en_cours' ? 'warning' : 'default'
+                        }
+                      />
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      {intervention.type === 'preventive' ? 'Préventive' : 'Curative'} - {new Date(intervention.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                ))}
+            </Box>
+          )}
         </Paper>
       </Container>
     </Box>

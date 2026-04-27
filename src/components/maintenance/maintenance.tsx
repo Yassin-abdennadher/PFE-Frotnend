@@ -27,6 +27,7 @@ import {
   Send as SendIcon,
   CheckCircle as CheckCircleIcon
 } from '@mui/icons-material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { RootState } from '../../redux/store';
 import axios from 'axios';
 import './maintenance.css';
@@ -43,6 +44,7 @@ const Maintenance: React.FC = () => {
   const [machines, setMachines] = useState<any[]>([]);
   const [techniciens, setTechniciens] = useState<any[]>([]);
   const urlMain = process.env.REACT_APP_URL_GATEWAY_MAIN;
+  const urlNotif = process.env.REACT_APP_URL_GATEWAY_NOTIFICATION;
   const urlAuth = process.env.REACT_APP_URL_GATEWAY_USERS;
 
   const [formData, setFormData] = useState({
@@ -52,7 +54,7 @@ const Maintenance: React.FC = () => {
     urgence: 'moyenne',
     dateSouhaitee: '',
     panne: '',
-    technicienId : ''
+    technicienId: ''
   });
 
   const [errors, setErrors] = useState({
@@ -163,29 +165,22 @@ const Maintenance: React.FC = () => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      
-      // Créer une tâche curative (demande de réparation)
-      const interventionData = {
-        titre: formData.titre,
-        description: formData.description,
-        machineId: formData.machineId,
-        technicienId: role === 'admin' ? formData.technicienId : null,
-        urgence: formData.urgence,
-        panne: formData.panne,
-        statut: 'ouverte',
-        tempsPasse: 0,
-        rapport: ''
-      };
-
-      await axios.post(`${urlMain}/taches/curative`, interventionData, {
-        headers: { Authorization: `Bearer ${token}` }
+      await axios.post(`${urlNotif}`, {
+        userId: '7',
+        type: 'info',
+        title: '📢 Nouvelle demande d\'intervention',
+        message: `👤 Demandeur: ${currentUser?.username || 'Utilisateur'}\n\n` +
+          `🛠️ Titre: ${formData.titre}\n\n` +
+          `⚠️ Urgence: ${formData.urgence.toUpperCase()}\n\n` +
+          `🔧 Panne: ${formData.panne}\n\n` +
+          `📝 Description: ${formData.description}\n\n` +
+          `📅 Date souhaitée: ${new Date(formData.dateSouhaitee).toLocaleDateString()}`
       });
 
-      setSuccess(true);
       setTimeout(() => {
-        navigate('/Interventions');
+        navigate('/Home');
       }, 2000);
+
     } catch (err) {
       console.error(err);
     } finally {
@@ -227,6 +222,13 @@ const Maintenance: React.FC = () => {
     <Box className="maintenance-container">
       <Container maxWidth="md">
         <Paper className="maintenance-paper">
+          <Button
+            variant='contained'
+            startIcon={<ArrowBackIcon />}
+            onClick={() => { navigate('/Home') }}
+          >
+            retour
+          </Button>
           <Box className="maintenance-header">
             <BuildIcon className="header-icon" />
             <Typography variant="h4" className="page-title">
@@ -267,9 +269,9 @@ const Maintenance: React.FC = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <BuildIcon fontSize="small" />
                       <span>{machine.nom}</span>
-                      <Chip 
-                        label={machine.statut} 
-                        size="small" 
+                      <Chip
+                        label={machine.statut}
+                        size="small"
                         color={machine.statut === 'actif' ? 'success' : 'warning'}
                         sx={{ ml: 1 }}
                       />
@@ -403,8 +405,8 @@ const Maintenance: React.FC = () => {
                     </Grid>
                     <Grid size={{ xs: 6 }}>
                       <Typography variant="subtitle2" color="primary">Urgence</Typography>
-                      <Chip 
-                        label={urgenceList.find(u => u.value === formData.urgence)?.label} 
+                      <Chip
+                        label={urgenceList.find(u => u.value === formData.urgence)?.label}
                         color={formData.urgence === 'critique' ? 'error' : formData.urgence === 'haute' ? 'warning' : 'info'}
                         size="small"
                       />

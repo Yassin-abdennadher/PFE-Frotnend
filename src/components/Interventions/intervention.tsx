@@ -115,32 +115,34 @@ const Interventions: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTache, setSelectedTache] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  
+  const [openDialogDelete, setOpenDialogDelete] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: 'preventive' | 'curative' } | null>(null);
+
   const [preventives, setPreventives] = useState<TachePreventive[]>([]);
   const [curatives, setCuratives] = useState<TacheCurative[]>([]);
   const [machines, setMachines] = useState<Machine[]>([]);
   const [techniciens, setTechniciens] = useState<Technicien[]>([]);
 
   const urlMain = process.env.REACT_APP_URL_GATEWAY_MAIN;
-  const urlAuth = process.env.REACT_APP_URL_GATEWAY_USERS;  
+  const urlAuth = process.env.REACT_APP_URL_GATEWAY_USERS;
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        
+
         const machinesRes = await axios.get(`${urlMain}/machines`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         setMachines(machinesRes.data);
 
         const techRes = await axios.get(`${urlAuth}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        const techniciens = techRes.data.data.filter((user: any)=>{
-            return user.role==='technicien'
+        const techniciens = techRes.data.data.filter((user: any) => {
+          return user.role === 'technicien'
         })
         setTechniciens(techniciens);
 
@@ -162,10 +164,10 @@ const Interventions: React.FC = () => {
     fetchData();
   }, []);
 
-  const getMachineNom = (machineId: string) => {    
+  const getMachineNom = (machineId: string) => {
     return machines.find(m => m._id === machineId)?.nom || machineId;
   };
-  
+
   const getTechnicienNom = (techId: number) => {
     return techniciens.find((t) => t.id === techId)?.userFullname || techId;
   };
@@ -216,24 +218,32 @@ const Interventions: React.FC = () => {
   const canEdit = role === 'admin';
   const isTechnicien = role === 'technicien';
 
-  const handleDelete = async (id: string, type: 'preventive' | 'curative') => {
-    if (!window.confirm('Supprimer cette intervention ?')) return;
-    
+  const handleDelete = (id: string, type: 'preventive' | 'curative') => {
+    setDeleteTarget({ id, type });
+    setOpenDialogDelete(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
     try {
       const token = localStorage.getItem('token');
-      const endpoint = type === 'preventive'
-        ? `${urlMain}/taches/preventive/${id}`
-        : `${urlMain}/taches/curative/${id}`;
-      
+      const endpoint = deleteTarget.type === 'preventive'
+        ? `${urlMain}/taches/preventive/${deleteTarget.id}`
+        : `${urlMain}/taches/curative/${deleteTarget.id}`;
+
       await axios.delete(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (type === 'preventive') {
-        setPreventives(prev => prev.filter(p => p._id !== id));
+      if (deleteTarget.type === 'preventive') {
+        setPreventives(prev => prev.filter(p => p._id !== deleteTarget.id));
       } else {
-        setCuratives(prev => prev.filter(c => c._id !== id));
+        setCuratives(prev => prev.filter(c => c._id !== deleteTarget.id));
       }
+
+      setOpenDialogDelete(false);
+      setDeleteTarget(null);
     } catch (error) {
       console.error('Erreur suppression:', error);
     }
@@ -242,10 +252,10 @@ const Interventions: React.FC = () => {
   const handleStatusChange = async (id: string, newStatus: string, type: 'preventive' | 'curative') => {
     try {
       const token = localStorage.getItem('token');
-      const endpoint = type === 'preventive' 
+      const endpoint = type === 'preventive'
         ? `${urlMain}/taches/preventive/${id}`
         : `${urlMain}/taches/curative/${id}`;
-      
+
       await axios.put(endpoint, { statut: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -286,13 +296,13 @@ const Interventions: React.FC = () => {
         {/* En-tête */}
         <Box className="interventions-header">
           <Box>
-          <Button
-                    variant='contained'
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => { navigate('/Home') }}
-                >
-                  retour
-                </Button>
+            <Button
+              variant='contained'
+              startIcon={<ArrowBackIcon />}
+              onClick={() => { navigate('/Home') }}
+            >
+              retour
+            </Button>
             <Typography variant="h4" className="page-title" color="text.primary">
               Interventions
             </Typography>
@@ -355,7 +365,7 @@ const Interventions: React.FC = () => {
                   <TableRow key={tache._id} hover onClick={() => handleViewDetail(tache)} sx={{ cursor: 'pointer' }}>
                     <TableCell>
                       <Typography variant="body2" fontWeight={500}>
-                        {tache.titre} 
+                        {tache.titre}
                       </Typography>
                     </TableCell>
                     <TableCell>{getMachineNom(tache.machineId)}</TableCell>
@@ -550,6 +560,15 @@ const Interventions: React.FC = () => {
           )}
         </DialogActions>
       </Dialog>
+      <Dialog open={openDialogDelete} onClose={() => setOpenDialogDelete(false)}>
+        <DialogTitle>Confirmation</DialogTitle>
+        <DialogContent>Voulez-vous vraiment supprimer ?</DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialogDelete(false)}>Annuler</Button>
+          <Button onClick={handleConfirmDelete} color="error">Supprimer</Button>
+        </DialogActions>
+      </Dialog>
+
     </Box>
   );
 };

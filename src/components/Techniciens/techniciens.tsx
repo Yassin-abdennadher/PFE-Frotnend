@@ -51,6 +51,8 @@ const Techniciens: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
+    const [openDialogDelete, setOpenDialogDelete] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
     const [editingTechnicien, setEditingTechnicien] = useState<any>(null);
     const [formData, setFormData] = useState({
         userFullname: '',
@@ -179,12 +181,18 @@ const Techniciens: React.FC = () => {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!window.confirm('Supprimer ce technicien ?')) return;
+    const handleDelete = (id: string) => {
+        setDeleteTarget(id);
+        setOpenDialogDelete(true);
+    };
+
+
+    const handleConfirmDelete = async () => {
+        if (!deleteTarget) return;
 
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`${urlAuth}/${id}`, {
+            await axios.delete(`${urlAuth}/${deleteTarget}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchTechniciens();
@@ -398,6 +406,14 @@ const Techniciens: React.FC = () => {
                     <Button onClick={handleSubmit} variant="contained" startIcon={<SaveIcon />} disabled={loading}>
                         {loading ? <CircularProgress size={24} /> : (editingTechnicien ? 'Modifier' : 'Ajouter')}
                     </Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={openDialogDelete} onClose={() => setOpenDialogDelete(false)}>
+                <DialogTitle>Confirmation</DialogTitle>
+                <DialogContent>Voulez-vous vraiment supprimer ?</DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenDialogDelete(false)}>Annuler</Button>
+                    <Button onClick={handleConfirmDelete} color="error">Supprimer</Button>
                 </DialogActions>
             </Dialog>
         </Box>

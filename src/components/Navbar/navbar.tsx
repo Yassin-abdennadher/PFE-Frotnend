@@ -13,7 +13,12 @@ import {
   Badge,
   Tooltip,
   Chip,
-  Stack
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -39,6 +44,8 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notifAnchorEl, setNotifAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedNotif, setSelectedNotif] = useState<any>(null);
+  const [openModal, setOpenModal] = useState(false);
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.currentUser);
   
@@ -68,6 +75,14 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
 
   const handleNotificationClick = async (id: string) => {
     await markAsRead(id);
+  };
+
+  const handleViewNotification = (notif: any) => {
+    setSelectedNotif(notif);
+    setOpenModal(true);
+    if (!notif.read) {
+      handleNotificationClick(notif._id);
+    }
   };
 
   const getRoleColor = () => {
@@ -214,7 +229,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
               notifications.slice(0, 10).map((notif: any) => (
                 <MenuItem 
                   key={notif._id} 
-                  onClick={() => handleNotificationClick(notif._id)}
+                  onClick={() => handleViewNotification(notif)}
                   sx={{ 
                     flexDirection: 'column', 
                     alignItems: 'flex-start',
@@ -295,6 +310,27 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
           </Menu>
         </Stack>
       </Toolbar>
+
+      {/* Modal Détail Notification */}
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ borderBottom: '1px solid #eee' }}>
+          {selectedNotif?.title}
+          <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setOpenModal(false)}>
+            ✕
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', mb: 2 }}>
+            {selectedNotif?.message}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {selectedNotif && new Date(selectedNotif.createdAt).toLocaleString()}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenModal(false)}>Fermer</Button>
+        </DialogActions>
+      </Dialog>
     </AppBar>
   );
 };
