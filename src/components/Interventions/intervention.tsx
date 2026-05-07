@@ -24,7 +24,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  MenuItem,
   Grid,
   Rating,
   LinearProgress
@@ -149,12 +148,24 @@ const Interventions: React.FC = () => {
         const prevRes = await axios.get(`${urlMain}/taches/preventive`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setPreventives(prevRes.data.data);
+        let prevData = prevRes.data.data || [];
+        
+        // ✅ FILTRE : Si technicien, ne voir que ses interventions
+        if (role === 'technicien' && currentUser?.id) {
+          prevData = prevData.filter((tache: any) => tache.technicienId === currentUser.id.toString());
+        }
+        setPreventives(prevData);
 
         const curRes = await axios.get(`${urlMain}/taches/curative`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setCuratives(curRes.data.data || []);
+        let curData = curRes.data.data || [];
+        
+        // ✅ FILTRE : Si technicien, ne voir que ses interventions
+        if (role === 'technicien' && currentUser?.id) {
+          curData = curData.filter((tache: any) => tache.technicienId === currentUser.id.toString());
+        }
+        setCuratives(curData);
       } catch (error) {
         console.error('Erreur chargement:', error);
       } finally {
@@ -162,7 +173,7 @@ const Interventions: React.FC = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [role, currentUser?.id]);
 
   const getMachineNom = (machineId: string) => {
     return machines.find(m => m._id === machineId)?.nom || machineId;
@@ -217,6 +228,7 @@ const Interventions: React.FC = () => {
 
   const canEdit = role === 'admin';
   const isTechnicien = role === 'technicien';
+  const isAdmin = role === 'admin';
 
   const handleDelete = (id: string, type: 'preventive' | 'curative') => {
     setDeleteTarget({ id, type });
@@ -264,12 +276,20 @@ const Interventions: React.FC = () => {
         const res = await axios.get(`${urlMain}/taches/preventive`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setPreventives(res.data.data);
+        let data = res.data.data || [];
+        if (role === 'technicien' && currentUser?.id) {
+          data = data.filter((tache: any) => tache.technicienId === currentUser.id.toString());
+        }
+        setPreventives(data);
       } else {
         const res = await axios.get(`${urlMain}/taches/curative`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setCuratives(res.data.data);
+        let data = res.data.data || [];
+        if (role === 'technicien' && currentUser?.id) {
+          data = data.filter((tache: any) => tache.technicienId === currentUser.id.toString());
+        }
+        setCuratives(data);
       }
     } catch (error) {
       console.error('Erreur mise à jour statut:', error);

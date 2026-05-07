@@ -22,6 +22,7 @@ import {
   Warning as WarningIcon,
   Schedule as ScheduleIcon
 } from '@mui/icons-material';
+import GroupIcon from '@mui/icons-material/Group';
 import { RootState } from '../../redux/store';
 import './home.css';
 import axios from 'axios';
@@ -35,7 +36,7 @@ const Home: React.FC = () => {
   const [interventionsNbr, setInterventionsNbr] = useState(0);
   const [interventions, setInterventions] = useState<any[]>([]);
   const [interEnCours, setInterEnCours] = useState(0);
-  const [alertes , setAlertes]=useState<number>(0);
+  const [alertes, setAlertes] = useState<number>(0);
 
   const fetchStats = async () => {
     try {
@@ -46,7 +47,7 @@ const Home: React.FC = () => {
       const resPieces = await axios.get(`${urlMain}/pieces`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setAlertes(resPieces.data.filter((piece : any)=>piece.quantiteStock < piece.seuilAlerte).length);
+      setAlertes(resPieces.data.filter((piece: any) => piece.quantiteStock < piece.seuilAlerte).length);
       setEquipements(resMachines.data.length + resPieces.data.length);
       const resPrev = await axios.get(`${urlMain}/taches/preventive`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -80,10 +81,22 @@ const Home: React.FC = () => {
     { title: 'Équipements', icon: <InventoryIcon />, path: '/Equipements', roles: ['admin', 'user', 'technicien'] },
     { title: 'Interventions', icon: <AssignmentIcon />, path: '/Interventions', roles: ['admin', 'technicien'] },
     { title: 'Maintenance', icon: <BuildIcon />, path: '/maintenance', roles: ['technicien', 'user'] },
+    { title: 'Utilisateurs', icon: <GroupIcon />, path: '/utilisateurs', roles: ['admin'] },
     { title: 'Techniciens', icon: <PeopleIcon />, path: '/techniciens', roles: ['admin', 'user'] }
   ];
 
   const visibleMenu = menuItems.filter(item => item.roles.includes(role));
+
+  const getStatutChip = (statut: string) => {
+    const config: any = {
+      planifiee: { label: 'Planifiée', color: 'info' },
+      ouverte: { label: 'Ouverte', color: 'warning' },
+      en_cours: { label: 'En cours', color: 'primary' },
+      terminee: { label: 'Terminée', color: 'success' }
+    };
+    const { label, color } = config[statut] || { label: statut, color: 'default' };
+    return <Chip label={label} color={color} size="small" />;
+  };
 
   return (
     <Box className="home-container">
@@ -186,14 +199,7 @@ const Home: React.FC = () => {
                       <Typography variant="body1" fontWeight={500}>
                         {intervention.titre}
                       </Typography>
-                      <Chip
-                        label={intervention.statut}
-                        size="small"
-                        color={
-                          intervention.statut === 'terminee' ? 'success' :
-                            intervention.statut === 'en_cours' ? 'warning' : 'default'
-                        }
-                      />
+                      {getStatutChip(intervention.statut)}
                     </Box>
                     <Typography variant="caption" color="text.secondary" display="block">
                       {intervention.type === 'preventive' ? 'Préventive' : 'Curative'} - {new Date(intervention.createdAt).toLocaleDateString()}

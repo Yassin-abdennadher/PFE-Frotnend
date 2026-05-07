@@ -142,7 +142,7 @@ const Dashboard: React.FC = () => {
         .slice(0, 5) as Intervention[];
       
       setStats({
-        totalMachines: machines.length,
+        totalMachines: machines.length + pieces.length,
         totalInterventions: allInterventions.length,
         interventionsEnCours: enCours,
         interventionsTerminees: terminees,
@@ -185,10 +185,10 @@ const Dashboard: React.FC = () => {
       <Container maxWidth="lg">
         {/* En-tête */}
         <Box className="dashboard-header">
-          <Typography variant="h4" className="page-title">
+          <Typography variant="h4" className="page-title" color='text.primary'>
             Tableau de bord
           </Typography>
-          <Typography variant="body2" className="page-subtitle">
+          <Typography variant="body2" className="page-subtitle" color='text.secondary'>
             Vue d'ensemble de votre activité maintenance
           </Typography>
         </Box>
@@ -378,21 +378,21 @@ const Dashboard: React.FC = () => {
                 <Box className="stat-item">
                   <CheckCircleIcon className="stat-icon success" />
                   <Box>
-                    <Typography variant="h5">{stats.interventionsTerminees}</Typography>
+                    <Typography variant="h5" color='text.primary'>{stats.interventionsTerminees}</Typography>
                     <Typography variant="caption" color="text.secondary">Interventions terminées</Typography>
                   </Box>
                 </Box>
                 <Box className="stat-item">
                   <PeopleIcon className="stat-icon primary" />
                   <Box>
-                    <Typography variant="h5">-</Typography>
+                    <Typography variant="h5" color='text.primary'>-</Typography>
                     <Typography variant="caption" color="text.secondary">Techniciens actifs</Typography>
                   </Box>
                 </Box>
                 <Box className="stat-item">
                   <TrendingUpIcon className="stat-icon info" />
                   <Box>
-                    <Typography variant="h5">{stats.totalInterventions === 0 ? 0 : Math.round(stats.interventionsTerminees / stats.totalInterventions * 100)}%</Typography>
+                    <Typography variant="h5" color='text.primary'>{stats.totalInterventions === 0 ? 0 : Math.round(stats.interventionsTerminees / stats.totalInterventions * 100)}%</Typography>
                     <Typography variant="caption" color="text.secondary">Taux d'achèvement</Typography>
                   </Box>
                 </Box>

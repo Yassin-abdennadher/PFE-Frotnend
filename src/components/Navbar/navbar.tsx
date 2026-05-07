@@ -298,7 +298,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode }) => {
               <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
               Mon profil
             </MenuItem>
-            <MenuItem onClick={() => navigate('/Home')} sx={{ py: 1 }}>
+            <MenuItem onClick={() => navigate('/Dashboard')} sx={{ py: 1 }}>
               <ListItemIcon><DashboardIcon fontSize="small" /></ListItemIcon>
               Tableau de bord
             </MenuItem>

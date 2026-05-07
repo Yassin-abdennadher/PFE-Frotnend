@@ -48,6 +48,14 @@
 .kpi-icon.info { color: #0288d1; }
 .kpi-icon.error { color: #d32f2f; }
 
+.dark-mode{
+  --bg-color : #333333 ;
+}
+
+.light-mode{
+  --bg-color : #f8f9fa ;
+}
+
 .error-text {
   color: #d32f2f;
 }
@@ -83,7 +91,7 @@
   align-items: center;
   gap: 16px;
   padding: 12px;
-  background-color: #f8f9fa;
+  background-color: var(--bg-color);
   border-radius: 12px;
 }
 

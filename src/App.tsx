@@ -19,6 +19,7 @@ import { ThemeProvider} from '@mui/material';
 import { getTheme } from './theme/darkTheme';
 import Dashboard from './components/dashboard/dashboard';
 import Maintenance from './components/maintenance/maintenance';
+import Utilisateurs from './components/Utilisateurs/utilisateurs';
 
 function AppContent({ darkMode, toggleDarkMode }: { darkMode: boolean; toggleDarkMode: () => void }) {
   const isLogged = useSelector((state: any) => state.user.isLogged);
@@ -55,6 +56,7 @@ function AppContent({ darkMode, toggleDarkMode }: { darkMode: boolean; toggleDar
           <Route path='/Techniciens' element={<Techniciens />} />
           <Route path='/Dashboard' element={<Dashboard />} />
           <Route path='/Maintenance' element={<Maintenance />} />
+          <Route path='/Utilisateurs' element={<Utilisateurs/>} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
