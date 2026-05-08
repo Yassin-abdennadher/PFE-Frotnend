@@ -85,22 +85,6 @@ const Equipements: React.FC = () => {
     const [machines, setMachines] = useState<Machines[]>([]);
     const [pieces, setPieces] = useState<Pieces[]>([]);
 
-    //   const machines = [
-    //     { id: 1, nom: 'Tour CNC', type: 'Machine-outil', statut: 'actif', localisation: 'Atelier A' },
-    //     { id: 2, nom: 'Pompe hydraulique', type: 'Hydraulique', statut: 'en_panne', localisation: 'Atelier B' },
-    //     { id: 3, nom: 'Compresseur', type: 'Air comprimé', statut: 'maintenance', localisation: 'Local technique' }
-    //   ];
-
-    //   const pieces = [
-    //     { id: 1, reference: 'ROU-001', nom: 'Roulement à billes', stock: 15, seuil: 5, fournisseur: 'SKF' },
-    //     { id: 2, reference: 'COUR-002', nom: 'Courroie de distribution', stock: 3, seuil: 5, fournisseur: 'Bosch' },
-    //     { id: 3, reference: 'FIL-003', nom: 'Filtre à huile', stock: 12, seuil: 10, fournisseur: 'Mann' }
-    //   ];
-
-    console.log('url main : ', urlMainService);
-
-
-
     const fetchMachines = async () => {
         const token = localStorage.getItem('token');
         const res = await axios.get(`${urlMainService}/machines`, {

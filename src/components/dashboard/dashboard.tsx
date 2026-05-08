@@ -67,6 +67,7 @@ const Dashboard: React.FC = () => {
   const { currentUser } = useSelector((state: RootState) => state.user);
   const role = currentUser?.role || 'user';
   const urlMain = process.env.REACT_APP_URL_GATEWAY_MAIN;
+  const urlAuth = process.env.REACT_APP_URL_GATEWAY_USERS;
 
   const [stats, setStats] = useState({
     totalMachines: 0,
@@ -79,6 +80,7 @@ const Dashboard: React.FC = () => {
   const [recentInterventions, setRecentInterventions] = useState<Intervention[]>([]);
   const [topPannes, setTopPannes] = useState<TopPanne[]>([]);
   const [alertesStock, setAlertesStock] = useState<Piece[]>([]);
+  const [techNumber, setTechNumber] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -89,20 +91,20 @@ const Dashboard: React.FC = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      
+
       // Machines
       const machinesRes = await axios.get(`${urlMain}/machines`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const machines: Machine[] = machinesRes.data.data || machinesRes.data || [];
-      
+
       // Pièces pour alertes stock
       const piecesRes = await axios.get(`${urlMain}/pieces`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const pieces: Piece[] = piecesRes.data.data || piecesRes.data || [];
       const alertes = pieces.filter((p: Piece) => p.quantiteStock <= p.seuilAlerte);
-      
+
       // Interventions
       const prevRes = await axios.get(`${urlMain}/taches/preventive`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -110,14 +112,21 @@ const Dashboard: React.FC = () => {
       const curRes = await axios.get(`${urlMain}/taches/curative`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
+      const techRes = await axios.get(`${urlAuth}`);
+      console.log("technicien : ", techRes);
+      setTechNumber(techRes.data.data.filter((u: any) => u.role === 'technicien').length);
+      console.log("technicien : ", techNumber);
+
+
+
       const prevData: Intervention[] = prevRes.data.data || prevRes.data || [];
       const curData: Intervention[] = curRes.data.data || curRes.data || [];
       const allInterventions = [...prevData, ...curData];
-      
+
       const enCours = allInterventions.filter((i: Intervention) => i.statut === 'en_cours').length;
       const terminees = allInterventions.filter((i: Intervention) => i.statut === 'terminee').length;
-      
+
       // Top 3 machines les plus en panne
       const pannesCount = new Map<string, number>();
       curData.forEach((i: Intervention) => {
@@ -127,7 +136,7 @@ const Dashboard: React.FC = () => {
         .map(([id, count]) => ({ machineId: id, count }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 3);
-      
+
       // Récupérer les noms des machines
       const machinesMap = new Map(machines.map((m: Machine) => [m._id, m.nom]));
       const topPannesWithNames: TopPanne[] = topPannesList.map((p: { machineId: string; count: number }) => ({
@@ -135,12 +144,12 @@ const Dashboard: React.FC = () => {
         machineNom: machinesMap.get(p.machineId) || p.machineId,
         count: p.count
       }));
-      
+
       // Dernières interventions (5 dernières)
       const recent = [...allInterventions]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 5) as Intervention[];
-      
+
       setStats({
         totalMachines: machines.length + pieces.length,
         totalInterventions: allInterventions.length,
@@ -148,11 +157,11 @@ const Dashboard: React.FC = () => {
         interventionsTerminees: terminees,
         alertesStock: alertes.length
       });
-      
+
       setRecentInterventions(recent);
       setTopPannes(topPannesWithNames);
       setAlertesStock(alertes);
-      
+
     } catch (err) {
       console.error('Erreur chargement dashboard:', err);
     } finally {
@@ -268,7 +277,7 @@ const Dashboard: React.FC = () => {
                 <List>
                   {recentInterventions.map((intervention, idx) => (
                     <React.Fragment key={intervention._id}>
-                      <ListItem 
+                      <ListItem
                         component="div"
                         sx={{ cursor: 'pointer' }}
                         onClick={() => navigate(`/taches/${intervention.type === 'preventive' ? 'preventive' : 'curative'}/${intervention._id}`)}
@@ -343,7 +352,7 @@ const Dashboard: React.FC = () => {
                 <List>
                   {alertesStock.map((piece, idx) => (
                     <React.Fragment key={piece._id}>
-                      <ListItem 
+                      <ListItem
                         component="div"
                         sx={{ cursor: 'pointer' }}
                         onClick={() => navigate('/Equipements')}
@@ -385,7 +394,7 @@ const Dashboard: React.FC = () => {
                 <Box className="stat-item">
                   <PeopleIcon className="stat-icon primary" />
                   <Box>
-                    <Typography variant="h5" color='text.primary'>-</Typography>
+                    <Typography variant="h5" color='text.primary'>{techNumber}</Typography>
                     <Typography variant="caption" color="text.secondary">Techniciens actifs</Typography>
                   </Box>
                 </Box>

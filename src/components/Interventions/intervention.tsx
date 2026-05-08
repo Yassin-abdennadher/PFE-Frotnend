@@ -1,4 +1,3 @@
-// pages/Interventions.tsx
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -116,6 +115,8 @@ const Interventions: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [openDialogDelete, setOpenDialogDelete] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: 'preventive' | 'curative' } | null>(null);
+  const [openPiecesDialog, setOpenPiecesDialog] = useState(false);
+  const [piecesUtilisees, setPiecesUtilisees] = useState([{ pieceId: '', quantite: 1 }]);
 
   const [preventives, setPreventives] = useState<TachePreventive[]>([]);
   const [curatives, setCuratives] = useState<TacheCurative[]>([]);
@@ -149,8 +150,7 @@ const Interventions: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         let prevData = prevRes.data.data || [];
-        
-        // ✅ FILTRE : Si technicien, ne voir que ses interventions
+
         if (role === 'technicien' && currentUser?.id) {
           prevData = prevData.filter((tache: any) => tache.technicienId === currentUser.id.toString());
         }
@@ -160,8 +160,7 @@ const Interventions: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         let curData = curRes.data.data || [];
-        
-        // ✅ FILTRE : Si technicien, ne voir que ses interventions
+
         if (role === 'technicien' && currentUser?.id) {
           curData = curData.filter((tache: any) => tache.technicienId === currentUser.id.toString());
         }
@@ -228,7 +227,6 @@ const Interventions: React.FC = () => {
 
   const canEdit = role === 'admin';
   const isTechnicien = role === 'technicien';
-  const isAdmin = role === 'admin';
 
   const handleDelete = (id: string, type: 'preventive' | 'curative') => {
     setDeleteTarget({ id, type });

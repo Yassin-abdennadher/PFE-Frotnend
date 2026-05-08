@@ -1,4 +1,3 @@
-// pages/Inscription.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -59,6 +58,7 @@ const Inscription: React.FC = () => {
   });
 
   const urlGateway = process.env.REACT_APP_URL_GATEWAY_USERS;
+  const urlNotif = process.env.REACT_APP_URL_GATEWAY_NOTIFICATION
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -83,7 +83,7 @@ const Inscription: React.FC = () => {
       }
       return true;
     }
-    
+
     if (activeStep === 1) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!formData.email.trim()) {
@@ -108,7 +108,7 @@ const Inscription: React.FC = () => {
       }
       return true;
     }
-    
+
     return true;
   };
 
@@ -117,6 +117,8 @@ const Inscription: React.FC = () => {
     if (validateStep()) {
       if (activeStep === steps.length - 1) {
         handleSubmit();
+      } else if (activeStep === 1 && formData.password !== formData.confirmPassword) {
+        setError('Mot de passe incorrect');
       } else {
         setActiveStep(activeStep + 1);
       }
@@ -131,17 +133,27 @@ const Inscription: React.FC = () => {
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
-    
-    try {
-      const response = await axios.post(`${urlGateway}`, {
-        userFullname: formData.userFullname,
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role
-      });
 
-      if (response.data.success) {
+    try {
+      //   const response = await axios.post(`${urlGateway}`, {
+      //     userFullname: formData.userFullname,
+      //     username: formData.username,
+      //     email: formData.email,
+      //     password: formData.password,
+      //     role: formData.role
+      //   });
+      const response = await axios.post(`${urlNotif}`, {
+        userId: '7',
+        type: 'info',
+        title: '📢 Nouvelle demande d\'inscription',
+        message: `userFullname: ${formData.userFullname}\n\n` +
+          `username: ${formData.username}\n\n` +
+          `email: ${formData.email}\n\n` +
+          `password: ${formData.password}\n\n` +
+          `role: ${formData.role}`
+      });
+      console.log("res notif : ", response.status);
+      if (response.status===201) {
         setSuccess(true);
         setTimeout(() => {
           navigate('/');
@@ -196,7 +208,7 @@ const Inscription: React.FC = () => {
             />
           </Box>
         );
-      
+
       case 1:
         return (
           <Box className="step-content">
@@ -289,29 +301,29 @@ const Inscription: React.FC = () => {
             </TextField>
           </Box>
         );
-      
+
       case 2:
         return (
           <Box className="step-content confirmation">
             <div className="confirmation-card">
               <PersonAdd className="confirmation-icon" />
-              <Typography variant="h6">Vérifiez vos informations</Typography>
+              <Typography variant="h6" color='text.primary'>Vérifiez vos informations</Typography>
               <Grid container spacing={2} sx={{ mt: 2 }}>
                 <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">Nom complet :</Typography>
-                  <Typography variant="body1">{formData.userFullname}</Typography>
+                  <Typography variant="body1" color='text.primary'>{formData.userFullname}</Typography>
                 </Grid>
                 <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">Nom d'utilisateur :</Typography>
-                  <Typography variant="body1">{formData.username}</Typography>
+                  <Typography variant="body1" color='text.primary'>{formData.username}</Typography>
                 </Grid>
                 <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">Email :</Typography>
-                  <Typography variant="body1">{formData.email}</Typography>
+                  <Typography variant="body1" color='text.primary'>{formData.email}</Typography>
                 </Grid>
                 <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">Rôle :</Typography>
-                  <Typography variant="body1">
+                  <Typography variant="body1" color='text.primary'>
                     {formData.role === 'technicien' ? 'Technicien' : 'Utilisateur'}
                   </Typography>
                 </Grid>
@@ -319,7 +331,7 @@ const Inscription: React.FC = () => {
             </div>
           </Box>
         );
-      
+
       default:
         return null;
     }
@@ -350,12 +362,12 @@ const Inscription: React.FC = () => {
       <Box className="inscription-container">
         <Paper className="inscription-paper">
           <Button
-                    variant='contained'
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => { navigate('/') }}
-                >
-                  retour
-                </Button>
+            variant='contained'
+            startIcon={<ArrowBackIcon />}
+            onClick={() => { navigate('/') }}
+          >
+            retour
+          </Button>
           {/* Logo */}
           <Box className="logo-container">
             <Box className="logo-box">
@@ -364,7 +376,7 @@ const Inscription: React.FC = () => {
           </Box>
 
           <Typography component="h1" variant="h5" align="center" gutterBottom>
-            Créer un compte
+            Demande de création de compte
           </Typography>
           <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
             GMAO - Gestion de Maintenance Assistée par Ordinateur
@@ -410,7 +422,7 @@ const Inscription: React.FC = () => {
                 {loading ? (
                   <CircularProgress size={24} />
                 ) : activeStep === steps.length - 1 ? (
-                  "S'inscrire"
+                  "Envoyer La Demande D'inscription"
                 ) : (
                   "Suivant"
                 )}

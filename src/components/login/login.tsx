@@ -1,4 +1,3 @@
-// Login.tsx
 import React, { useEffect, useState } from 'react';
 import { Container, Paper, TextField, Button, Typography, Box, Alert, InputAdornment, IconButton } from '@mui/material';
 import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
@@ -71,7 +70,7 @@ const Login: React.FC = () => {
             <TextField margin="normal" required fullWidth name="password" label="Mot de passe" type={showPassword ? 'text' : 'password'} id="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} InputProps={{ endAdornment: (<InputAdornment position="end"><IconButton onClick={() => setShowPassword(!showPassword)} edge="end">{showPassword ? <VisibilityOff /> : <Visibility />}</IconButton></InputAdornment>) }} />
             <Button type="submit" fullWidth variant="contained" size="large" sx={{ mt: 3, mb: 2, py: 1.5 }}>Se connecter</Button>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography onClick={() => navigate('/Inscription')} variant="body2" color="primary" sx={{ cursor: 'pointer' }}>S'inscrire</Typography>
+              <Typography onClick={() => navigate('/Inscription')} variant="body2" color="primary" sx={{ cursor: 'pointer' }}>Demande d'inscription</Typography>
               <Typography variant="body2" color="primary" sx={{ cursor: 'pointer' }}>Mot de passe oublié ?</Typography>
             </Box>
           </Box>
