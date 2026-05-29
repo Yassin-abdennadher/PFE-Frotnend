@@ -1,3 +1,4 @@
+// pages/Interventions.tsx
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +25,7 @@ import {
   DialogContent,
   DialogActions,
   Grid,
-  Rating,
+  MenuItem,
   LinearProgress
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -36,7 +37,6 @@ import {
   Build as BuildIcon,
   Assignment as AssignmentIcon,
   Warning as WarningIcon,
-  CheckCircle as CheckCircleIcon,
   Schedule as ScheduleIcon,
   PlayArrow as PlayArrowIcon,
   Done as DoneIcon,
@@ -69,6 +69,13 @@ interface Machine {
 interface Technicien {
   id: number;
   userFullname: string;
+}
+
+interface Piece {
+  _id: string;
+  nom: string;
+  reference: string;
+  quantiteStock: number;
 }
 
 interface TachePreventive {
@@ -117,11 +124,15 @@ const Interventions: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: 'preventive' | 'curative' } | null>(null);
   const [openPiecesDialog, setOpenPiecesDialog] = useState(false);
   const [piecesUtilisees, setPiecesUtilisees] = useState([{ pieceId: '', quantite: 1 }]);
+  const [currentTacheId, setCurrentTacheId] = useState('');
+  const [currentTacheType, setCurrentTacheType] = useState<'preventive' | 'curative'>('curative');
+  const [tempsPasse, setTempsPasse] = useState(0);
 
   const [preventives, setPreventives] = useState<TachePreventive[]>([]);
   const [curatives, setCuratives] = useState<TacheCurative[]>([]);
   const [machines, setMachines] = useState<Machine[]>([]);
   const [techniciens, setTechniciens] = useState<Technicien[]>([]);
+  const [pieces, setPieces] = useState<Piece[]>([]);
 
   const urlMain = process.env.REACT_APP_URL_GATEWAY_MAIN;
   const urlAuth = process.env.REACT_APP_URL_GATEWAY_USERS;
@@ -135,8 +146,12 @@ const Interventions: React.FC = () => {
         const machinesRes = await axios.get(`${urlMain}/machines`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-
         setMachines(machinesRes.data);
+
+        const piecesRes = await axios.get(`${urlMain}/pieces`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setPieces(piecesRes.data.data || piecesRes.data || []);
 
         const techRes = await axios.get(`${urlAuth}`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -181,6 +196,10 @@ const Interventions: React.FC = () => {
   const getTechnicienNom = (techId: number) => {
     return techniciens.find((t) => t.id === techId)?.userFullname || techId;
   };
+
+  const getPieceNom = (pcsId : string)=>{
+    return pieces.find((p)=>p._id === pcsId)?.nom || pcsId ;
+  }
 
   const getStatutChip = (statut: string) => {
     const config: any = {
@@ -259,7 +278,40 @@ const Interventions: React.FC = () => {
     }
   };
 
+  const updateStockPieces = async (piecesUtilisees: { pieceId: string; quantite: number }[]) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      for (const piece of piecesUtilisees) {
+        const pieceRes = await axios.get(`${urlMain}/pieces/${piece.pieceId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const pieceActuelle = pieceRes.data;
+        const nouvelleQuantite = pieceActuelle.quantiteStock - piece.quantite;
+
+        await axios.put(`${urlMain}/pieces/${piece.pieceId}`, {
+          quantiteStock: nouvelleQuantite
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+    } catch (error) {
+      console.error('Erreur mise à jour stock:', error);
+      throw error;
+    }
+  };
+
   const handleStatusChange = async (id: string, newStatus: string, type: 'preventive' | 'curative') => {
+    if (type === 'curative' && newStatus === 'terminee') {
+      setCurrentTacheId(id);
+      setCurrentTacheType(type);
+      setTempsPasse(0);
+      setPiecesUtilisees([{ pieceId: '', quantite: 1 }]);
+      setOpenPiecesDialog(true);
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       const endpoint = type === 'preventive'
@@ -291,6 +343,45 @@ const Interventions: React.FC = () => {
       }
     } catch (error) {
       console.error('Erreur mise à jour statut:', error);
+    }
+  };
+
+
+  const handleConfirmTerminer = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const endpoint = `${urlMain}/taches/curative/${currentTacheId}`;
+
+      await updateStockPieces(piecesUtilisees);
+
+      await axios.put(endpoint, {
+        statut: 'terminee',
+        piecesUtilisees: piecesUtilisees,
+        tempsPasse: tempsPasse
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setOpenPiecesDialog(false);
+      setPiecesUtilisees([{ pieceId: '', quantite: 1 }]);
+      setTempsPasse(0);
+
+      const res = await axios.get(`${urlMain}/taches/curative`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      let data = res.data.data || [];
+      if (role === 'technicien' && currentUser?.id) {
+        data = data.filter((tache: any) => tache.technicienId === currentUser.id.toString());
+      }
+      setCuratives(data);
+
+      const piecesRes = await axios.get(`${urlMain}/pieces`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPieces(piecesRes.data.data || piecesRes.data || []);
+
+    } catch (error) {
+      console.error('Erreur:', error);
     }
   };
 
@@ -533,7 +624,7 @@ const Interventions: React.FC = () => {
                     <Typography variant="caption" color="text.secondary">Pièces utilisées</Typography>
                     {selectedTache.piecesUtilisees?.length > 0 ? (
                       selectedTache.piecesUtilisees.map((p: any, idx: number) => (
-                        <Typography key={idx}>• {p.pieceId} x{p.quantite}</Typography>
+                        <Typography key={idx}>• {getPieceNom(p.pieceId)} x{p.quantite}</Typography>
                       ))
                     ) : (
                       <Typography>Aucune</Typography>
@@ -578,12 +669,92 @@ const Interventions: React.FC = () => {
           )}
         </DialogActions>
       </Dialog>
+
+      {/* Dialogue suppression */}
       <Dialog open={openDialogDelete} onClose={() => setOpenDialogDelete(false)}>
         <DialogTitle>Confirmation</DialogTitle>
         <DialogContent>Voulez-vous vraiment supprimer ?</DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialogDelete(false)}>Annuler</Button>
           <Button onClick={handleConfirmDelete} color="error">Supprimer</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialogue pièces utilisées et temps passé */}
+      <Dialog open={openPiecesDialog} onClose={() => setOpenPiecesDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          Terminer l'intervention
+          <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setOpenPiecesDialog(false)}>
+            <CancelIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="subtitle2" gutterBottom sx={{ mt: 1 }}>
+            Pièces utilisées
+          </Typography>
+          {piecesUtilisees.map((piece, index) => (
+            <Grid container spacing={2} key={index} sx={{ mt: 1 }}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Pièce"
+                  value={piece.pieceId}
+                  onChange={(e) => {
+                    const newPieces = [...piecesUtilisees];
+                    newPieces[index].pieceId = e.target.value;
+                    setPiecesUtilisees(newPieces);
+                  }}
+                  required
+                >
+                  {pieces.map((p: any) => (
+                    <MenuItem key={p._id} value={p._id}>{p.nom} ({p.reference})</MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <TextField
+                  fullWidth
+                  label="Quantité"
+                  type="number"
+                  value={piece.quantite}
+                  onChange={(e) => {
+                    const newPieces = [...piecesUtilisees];
+                    newPieces[index].quantite = parseInt(e.target.value) || 1;
+                    setPiecesUtilisees(newPieces);
+                  }}
+                  required
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 2 }}>
+                <Button color="error" onClick={() => {
+                  const newPieces = piecesUtilisees.filter((_, i) => i !== index);
+                  setPiecesUtilisees(newPieces);
+                }}>Supprimer</Button>
+              </Grid>
+            </Grid>
+          ))}
+          <Button onClick={() => setPiecesUtilisees([...piecesUtilisees, { pieceId: '', quantite: 1 }])} sx={{ mt: 2 }}>
+            + Ajouter une pièce
+          </Button>
+
+          <Typography variant="subtitle2" gutterBottom sx={{ mt: 3 }}>
+            Temps passé
+          </Typography>
+          <TextField
+            fullWidth
+            label="Temps passé (minutes)"
+            type="number"
+            value={tempsPasse}
+            onChange={(e) => setTempsPasse(parseInt(e.target.value) || 0)}
+            InputProps={{
+              startAdornment: <InputAdornment position="start">⏱️</InputAdornment>
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenPiecesDialog(false)}>Annuler</Button>
+          <Button variant="contained" onClick={handleConfirmTerminer}>Valider</Button>
         </DialogActions>
       </Dialog>
 

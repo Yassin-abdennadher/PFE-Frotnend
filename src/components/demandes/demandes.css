@@ -1,0 +1,65 @@
+/* pages/demandes.css */
+.demandes-container {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+  margin-top: 64px;
+}
+
+.demandes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-weight: 600;
+  color: inherit;
+}
+
+.page-subtitle {
+  color: inherit;
+  margin-top: 4px;
+}
+
+.search-input {
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+
+.search-input .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
+
+.table-container {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-container .MuiTableHead-root .MuiTableCell-root {
+  font-weight: 600;
+}
+
+.alert-message {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .demandes-container {
+    padding: 16px;
+    margin-top: 56px;
+  }
+  
+  .demandes-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .demandes-header button {
+    width: 100%;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+}

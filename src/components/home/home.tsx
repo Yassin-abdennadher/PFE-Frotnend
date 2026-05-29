@@ -37,6 +37,7 @@ const Home: React.FC = () => {
   const [interventions, setInterventions] = useState<any[]>([]);
   const [interEnCours, setInterEnCours] = useState(0);
   const [alertes, setAlertes] = useState<number>(0);
+  const [demandes, setDemandes] = useState<any[]>([]);
 
   const fetchStats = async () => {
     try {
@@ -60,6 +61,16 @@ const Home: React.FC = () => {
       setInterventions([...resPrev.data.data, ...resCur.data.data]);
       const resEnCours = resCur.data.data.filter((tachCur: any) => tachCur.statut === 'en_cours').length + resPrev.data.data.filter((tachPrev: any) => tachPrev.statut === 'en_cours').length;
       setInterEnCours(resEnCours);
+
+      // Récupérer les demandes pour l'utilisateur
+      if (role === 'user') {
+        const resDemandes = await axios.get(`${urlMain}/demandes`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        let demandesData = resDemandes.data.data || resDemandes.data || [];
+        demandesData = demandesData.filter((d: any) => d.userId === currentUser?.id?.toString());
+        setDemandes(demandesData);
+      }
     } catch (err) {
       console.error('Error : ', err);
     }
@@ -82,7 +93,8 @@ const Home: React.FC = () => {
     { title: 'Interventions', icon: <AssignmentIcon />, path: '/Interventions', roles: ['admin', 'technicien'] },
     { title: 'Maintenance', icon: <BuildIcon />, path: '/maintenance', roles: ['technicien', 'user'] },
     { title: 'Utilisateurs', icon: <GroupIcon />, path: '/utilisateurs', roles: ['admin'] },
-    { title: 'Techniciens', icon: <PeopleIcon />, path: '/techniciens', roles: ['admin', 'user'] }
+    { title: 'Techniciens', icon: <PeopleIcon />, path: '/techniciens', roles: ['admin', 'user'] },
+    { title: 'Demandes', icon: <PeopleIcon />, path: '/Demandes', roles: ['admin', 'user'] }
   ];
 
   const visibleMenu = menuItems.filter(item => item.roles.includes(role));
@@ -92,11 +104,18 @@ const Home: React.FC = () => {
       planifiee: { label: 'Planifiée', color: 'info' },
       ouverte: { label: 'Ouverte', color: 'warning' },
       en_cours: { label: 'En cours', color: 'primary' },
-      terminee: { label: 'Terminée', color: 'success' }
+      terminee: { label: 'Terminée', color: 'success' },
+      en_attente: { label: 'En attente', color: 'warning' },
+      validee: { label: 'Validée', color: 'success' },
+      refusee: { label: 'Refusée', color: 'error' },
+      transformee: { label: 'Transformée', color: 'primary' }
     };
     const { label, color } = config[statut] || { label: statut, color: 'default' };
     return <Chip label={label} color={color} size="small" />;
   };
+
+  // Pour l'utilisateur, afficher les demandes au lieu des interventions
+  const userRecentItems = role === 'user' ? demandes : interventions;
 
   return (
     <Box className="home-container">
@@ -112,7 +131,7 @@ const Home: React.FC = () => {
             </Typography>
             <Typography variant="body1" className="welcome-subtitle" color="text.secondary">
               {role === 'admin' && 'Gestionnaire principal'}
-              {role === 'user' && 'utilisateur'}
+              {role === 'user' && 'Utilisateur'}
               {role === 'technicien' && 'Technicien de maintenance'}
             </Typography>
           </Box>
@@ -169,43 +188,55 @@ const Home: React.FC = () => {
           ))}
         </Grid>
 
-        {/* Dernières interventions */}
-        <Typography className="section-title" color="text.primary">Dernières interventions</Typography>
+        {/* Dernières interventions / Demandes */}
+        <Typography className="section-title" color="text.primary">
+          {role === 'user' ? 'Mes demandes récentes' : 'Dernières interventions'}
+        </Typography>
         <Paper className="empty-state">
-          {interventionsNbr === 0 ? (
-            <Typography variant="body2">Aucune intervention</Typography>
+          {userRecentItems.length === 0 ? (
+            <Typography variant="body2">
+              {role === 'user' ? 'Aucune demande' : 'Aucune intervention'}
+            </Typography>
           ) : (
             <Box>
-              {
-                (role === 'technicien'
-                  ? interventions?.filter((i: any) => i.technicienId === currentUser?.id?.toString()).sort((a, b) =>
+              {(role === 'technicien'
+                ? userRecentItems?.filter((i: any) => i.technicienId === currentUser?.id?.toString()).sort((a, b) =>
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                   ).slice(0, 5)
-                  : interventions?.sort((a, b) =>
+                : userRecentItems?.sort((a, b) =>
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                   ).slice(0, 10)
-                ).map((intervention: any) => (
-                  <Box
-                    key={intervention._id}
-                    sx={{
-                      p: 2,
-                      borderBottom: '1px solid #eee',
-                      cursor: 'pointer',
-                      '&:hover': { bgcolor: 'action.hover' }
-                    }}
-                    onClick={() => navigate(`/taches/${intervention.type === 'preventive' ? 'preventive' : 'curative'}/${intervention._id}`)}
-                  >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="body1" fontWeight={500}>
-                        {intervention.titre}
-                      </Typography>
-                      {getStatutChip(intervention.statut)}
-                    </Box>
-                    <Typography variant="caption" color="text.secondary" display="block">
-                      {intervention.type === 'preventive' ? 'Préventive' : 'Curative'} - {new Date(intervention.createdAt).toLocaleDateString()}
+              ).map((item: any) => (
+                <Box
+                  key={item._id}
+                  sx={{
+                    p: 2,
+                    borderBottom: '1px solid #eee',
+                    cursor: 'pointer',
+                    '&:hover': { bgcolor: 'action.hover' }
+                  }}
+                  onClick={() => {
+                    if (role === 'user') {
+                      navigate(`/Demandes`);
+                    } else {
+                      navigate(`/taches/${item.type === 'preventive' ? 'preventive' : 'curative'}/${item._id}`);
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body1" fontWeight={500}>
+                      {item.titre}
                     </Typography>
+                    {getStatutChip(item.statut)}
                   </Box>
-                ))}
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    {role === 'user' 
+                      ? `Demande - ${new Date(item.createdAt).toLocaleDateString()}`
+                      : `${item.type === 'preventive' ? 'Préventive' : 'Curative'} - ${new Date(item.createdAt).toLocaleDateString()}`
+                    }
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           )}
         </Paper>

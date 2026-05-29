@@ -46,6 +46,9 @@ const Maintenance: React.FC = () => {
   const urlMain = process.env.REACT_APP_URL_GATEWAY_MAIN;
   const urlNotif = process.env.REACT_APP_URL_GATEWAY_NOTIFICATION;
   const urlAuth = process.env.REACT_APP_URL_GATEWAY_USERS;
+  const adminId = process.env.REACT_APP_ADMIN_ID;
+  
+  console.log('admin id : ',adminId);
 
   const [formData, setFormData] = useState({
     machineId: '',
@@ -164,23 +167,37 @@ const Maintenance: React.FC = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
+    const token = localStorage.getItem('token');
     try {
-      await axios.post(`${urlNotif}`, {
-        userId: '7',
-        type: 'info',
-        title: '📢 Nouvelle demande d\'intervention',
-        message: `👤 Demandeur: ${currentUser?.username || 'Utilisateur'}\n\n` +
-          `🛠️ Titre: ${formData.titre}\n\n` +
-          `⚠️ Urgence: ${formData.urgence.toUpperCase()}\n\n` +
-          `🔧 Panne: ${formData.panne}\n\n` +
-          `📝 Description: ${formData.description}\n\n` +
-          `📅 Date souhaitée: ${new Date(formData.dateSouhaitee).toLocaleDateString()}`
+      const res = await axios.post(`${urlMain}/demandes`, {
+        userId:currentUser?.id,
+        titre: formData.titre,
+        description: formData.description,
+        machineId: formData.machineId,
+        urgence: formData.urgence,
+        statut: 'en_attente',
+        dateSouhaitee : formData.dateSouhaitee
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      setTimeout(() => {
-        navigate('/Home');
-      }, 2000);
-
+      console.log('response : ', res)
+      if (res.status === 201) {
+        await axios.post(`${urlNotif}`, {
+          userId: `${adminId}`,
+          email : 'yassin.abdennadher983@gmail.com',
+          type: 'warning',
+          title: '📢 Nouvelle demande d\'intervention',
+          message: `👤 Demandeur: ${currentUser?.username || 'Utilisateur'}\n\n` +
+            `🛠️ Titre: ${formData.titre}\n\n` +
+            `⚠️ Urgence: ${formData.urgence.toUpperCase()}\n\n` +
+            `🔧 Panne: ${formData.panne}\n\n` +
+            `📝 Description: ${formData.description}\n\n` +
+            `📅 Date souhaitée: ${new Date(formData.dateSouhaitee).toLocaleDateString()}`
+        });
+        setTimeout(() => {
+          navigate('/Home');
+        }, 2000);
+      }
     } catch (err) {
       console.error(err);
     } finally {
